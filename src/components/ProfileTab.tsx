@@ -22,6 +22,7 @@ export const ProfileTab: React.FC = () => {
   // Local state for editable fields
   const [displayName, setDisplayName] = useState('');
   const [avatarSeed, setAvatarSeed] = useState('');
+  const [cardStyle, setCardStyle] = useState('e5c'); // Default to requested e5c
   const [isUpdating, setIsUpdating] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -35,6 +36,12 @@ export const ProfileTab: React.FC = () => {
         setAvatarSeed(decodeURIComponent(seedValue));
       } else {
         setAvatarSeed(user.displayName || user.email?.split('@')[0] || 'Schumacher');
+      }
+
+      // Check if they stored a preference in localStorage for seamless client-side experience
+      const storedStyle = localStorage.getItem(`profile_card_style_${user.uid}`);
+      if (storedStyle) {
+        setCardStyle(storedStyle);
       }
     }
   }, [user]);
@@ -55,12 +62,15 @@ export const ProfileTab: React.FC = () => {
         photoURL: generatedPhotoURL
       });
 
+      // Persist the luxury card style locally for the user session
+      localStorage.setItem(`profile_card_style_${auth.currentUser.uid}`, cardStyle);
+
       // Force refresh user profile
       await auth.currentUser.reload();
       
       setNotification({
         type: 'success',
-        message: 'Telemetry updated. Driver profile is now certified.'
+        message: 'Telemetry updated. Driver profile card is now certified as: ' + (cardStyle === 'e5c' ? 'e5c Gold License' : cardStyle.toUpperCase())
       });
 
       // Clear successful alert after 4s
@@ -115,12 +125,40 @@ export const ProfileTab: React.FC = () => {
           
           {/* Left panel: Live Supercar License badge */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-neutral-950 border border-white/5 p-6 rounded-3xl relative overflow-hidden flex flex-col items-center text-center">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gold-550/5 rounded-full blur-2xl"></div>
+            <div className={`transition-all duration-700 ease-out border p-6 rounded-3xl relative overflow-hidden flex flex-col items-center text-center shadow-2xl ${
+              cardStyle === 'e5c' 
+                ? 'bg-gradient-to-br from-[#121212] via-[#2a1d07] to-[#0d0902] border-[#d4a331]/35 shadow-[#d4a331]/5' 
+                : cardStyle === 'monaco'
+                ? 'bg-gradient-to-br from-[#121212] via-[#2d0909] to-[#0f0303] border-red-500/35 shadow-red-500/5'
+                : cardStyle === 'dubai'
+                ? 'bg-gradient-to-br from-[#121212] via-[#272109] to-[#0a0802] border-yellow-600/35 shadow-yellow-600/5'
+                : 'bg-neutral-950 border-white/5'
+            }`}>
+              
+              {/* Luxury Carbon Texture Overlay */}
+              <div className="absolute inset-0 z-0 bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] [background-size:16px_16px] opacity-15 pointer-events-none"></div>
+
+              {/* Dynamic Photo/Style Ambient Light Backdrops */}
+              {cardStyle === 'e5c' && (
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4a331]/10 rounded-full blur-3xl -mr-10 -mt-10 z-0 pointer-events-none"></div>
+              )}
+              {cardStyle === 'monaco' && (
+                <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -mr-10 -mt-10 z-0 pointer-events-none"></div>
+              )}
+              {cardStyle === 'dubai' && (
+                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-600/10 rounded-full blur-3xl -mr-10 -mt-10 z-0 pointer-events-none"></div>
+              )}
+
+              {/* Holographic watermark */}
+              <div className="absolute top-4 left-4 z-10 font-mono text-[8px] font-black tracking-widest text-white/20 select-none uppercase">
+                {cardStyle === 'e5c' ? 'E5C PLATINUM ID' : 'VIP RACING ID'}
+              </div>
               
               {/* Giant Avatar Display */}
-              <div className="relative group mb-4">
-                <div className="w-24 h-24 rounded-2xl bg-neutral-900 border border-white/10 p-1 overflow-hidden flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 duration-350">
+              <div className="relative group mb-4 mt-4 z-10">
+                <div className={`w-24 h-24 rounded-2xl bg-neutral-900 p-1 overflow-hidden flex items-center justify-center shadow-lg transition-transform group-hover:scale-105 duration-350 border ${
+                  cardStyle === 'e5c' ? 'border-[#d4a331]/40' : cardStyle === 'monaco' ? 'border-red-500/30' : cardStyle === 'dubai' ? 'border-yellow-600/30' : 'border-white/10'
+                }`}>
                   <img 
                     src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(avatarSeed || displayName || 'V')}`}
                     alt="Driver Avatar" 
@@ -128,32 +166,42 @@ export const ProfileTab: React.FC = () => {
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <div className="absolute -bottom-1 -right-1 bg-gold-550 rounded-lg p-1.5 border-2 border-neutral-950 text-black shadow-md">
+                <div className={`absolute -bottom-1 -right-1 rounded-lg p-1.5 border-2 border-neutral-950 text-black shadow-md ${
+                  cardStyle === 'e5c' ? 'bg-[#d4a331]' : cardStyle === 'monaco' ? 'bg-red-500' : cardStyle === 'dubai' ? 'bg-yellow-600' : 'bg-gray-400'
+                }`}>
                   <Camera className="w-3.5 h-3.5" />
                 </div>
               </div>
 
               {/* Identity labels */}
-              <h3 className="font-display text-lg font-bold text-white truncate max-w-full">
-                {user.displayName || 'Uncertified Pilot'}
+              <h3 className="font-display text-lg font-bold text-white truncate max-w-full z-10">
+                {displayName || 'Uncertified Pilot'}
               </h3>
-              <p className="text-[10px] font-mono text-gray-400 truncate max-w-full mt-0.5">{user.email}</p>
+              <p className="text-[10px] font-mono text-gray-400 truncate max-w-full mt-0.5 z-10">{user.email}</p>
 
-              <div className="h-[1px] bg-white/5 w-full my-5"></div>
+              <div className="h-[1px] bg-white/5 w-full my-5 z-10"></div>
 
               {/* Racetrack Profile Statistics / Badges */}
-              <div className="w-full space-y-3.5 text-left">
+              <div className="w-full space-y-3.5 text-left z-10">
                 
-                <div className="flex items-center justify-between text-xs bg-black p-3 rounded-xl border border-white/5">
+                <div className="flex items-center justify-between text-xs bg-black/60 backdrop-blur-md p-3 rounded-xl border border-white/5">
                   <span className="text-gray-400 flex items-center gap-1.5">
                     <Award className="w-4 h-4 text-gold-550" /> Speed Class
                   </span>
-                  <span className="font-mono font-bold text-gold-550 uppercase tracking-widest bg-gold-550/10 px-2 py-0.5 rounded text-[10px] border border-gold-550/20">
-                    GT3 Certified
+                  <span className={`font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded text-[10px] border ${
+                    cardStyle === 'e5c' 
+                      ? 'bg-[#d4a331]/15 text-[#d4a331] border-[#d4a331]/20' 
+                      : cardStyle === 'monaco'
+                      ? 'bg-red-500/15 text-red-500 border-red-500/20'
+                      : cardStyle === 'dubai'
+                      ? 'bg-yellow-600/15 text-yellow-600 border-yellow-600/20'
+                      : 'bg-white/10 text-white border-white/10'
+                  }`}>
+                    {cardStyle === 'e5c' ? 'E5C ELITE' : 'GT3 Certified'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs bg-black p-3 rounded-xl border border-white/5">
+                <div className="flex items-center justify-between text-xs bg-black/60 backdrop-blur-md p-3 rounded-xl border border-white/5">
                   <span className="text-gray-400 flex items-center gap-1.5">
                     <Flame className="w-4 h-4 text-red-500" /> Hot Laps
                   </span>
@@ -162,7 +210,7 @@ export const ProfileTab: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs bg-black p-3 rounded-xl border border-white/5">
+                <div className="flex items-center justify-between text-xs bg-black/60 backdrop-blur-md p-3 rounded-xl border border-white/5">
                   <span className="text-gray-400 flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-emerald-400" /> Member Since
                   </span>
@@ -174,7 +222,7 @@ export const ProfileTab: React.FC = () => {
               </div>
 
               {/* Security validation */}
-              <div className="mt-6 flex items-center gap-2 text-[10px] text-gray-500 justify-center">
+              <div className="mt-6 flex items-center gap-2 text-[10px] text-gray-500 justify-center z-10">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
                 <span>Paddock Entry Clearance Active</span>
               </div>
@@ -263,6 +311,67 @@ export const ProfileTab: React.FC = () => {
                     />
                   </div>
                   <p className="text-[10px] text-gray-500 mt-1">Change this word to dynamically randomize premium vector emblem visuals based on initials matching.</p>
+                </div>
+
+                {/* License Card Style Selector (requested image option: e5c) */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-widest font-black">
+                    License Design / Card Profile Image Preset
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    
+                    <button
+                      type="button"
+                      onClick={() => setCardStyle('e5c')}
+                      className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
+                        cardStyle === 'e5c' 
+                          ? 'border-[#d4a331] bg-[#d4a331]/5 text-white' 
+                          : 'border-white/5 bg-black hover:border-white/15 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-mono text-[9px] uppercase tracking-wide font-black">Preset ID: e5c</span>
+                        {cardStyle === 'e5c' && <span className="w-1.5 h-1.5 rounded-full bg-[#d4a331] animate-ping"></span>}
+                      </div>
+                      <span className="text-xs font-semibold mt-2 block">e5c Gold License</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setCardStyle('monaco')}
+                      className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
+                        cardStyle === 'monaco' 
+                          ? 'border-red-500 bg-red-500/5 text-white' 
+                          : 'border-white/5 bg-black hover:border-white/15 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-mono text-[9px] uppercase tracking-wide font-black">Preset ID: Monaco</span>
+                        {cardStyle === 'monaco' && <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>}
+                      </div>
+                      <span className="text-xs font-semibold mt-2 block">Monaco Racing Red</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setCardStyle('dubai')}
+                      className={`p-3.5 rounded-xl border text-left flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${
+                        cardStyle === 'dubai' 
+                          ? 'border-yellow-600 bg-yellow-600/5 text-white' 
+                          : 'border-white/5 bg-black hover:border-white/15 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-mono text-[9px] uppercase tracking-wide font-black">Preset ID: Dubai</span>
+                        {cardStyle === 'dubai' && <span className="w-1.5 h-1.5 rounded-full bg-yellow-600"></span>}
+                      </div>
+                      <span className="text-xs font-semibold mt-2 block">Dubai Golden Sands</span>
+                    </button>
+
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Selecting <strong className="text-gold-550">e5c Gold License</strong> applies a beautiful titanium/gold pinstripe luxury wrap layout with deep golden accents to your physical pilot authorization card.
+                  </p>
                 </div>
 
                 {/* Submit button */}
