@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { Sidebar } from './components/Sidebar.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
@@ -15,6 +16,7 @@ import { MembershipTab } from './components/MembershipTab.tsx';
 import { ConciergeTab } from './components/ConciergeTab.tsx';
 import { AboutTab } from './components/AboutTab.tsx';
 import { ContactTab } from './components/ContactTab.tsx';
+import { ProfileTab } from './components/ProfileTab.tsx';
 
 import { Car, PickupLocation, Destination, Reservation } from './types.ts';
 import { 
@@ -400,6 +402,12 @@ function DashboardOrchestrator() {
                       Reservations History
                     </button>
                     <button
+                      onClick={() => { setUserDropdownOpen(false); setTab('profile'); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer block text-gold-550 font-semibold"
+                    >
+                      Driver Profile
+                    </button>
+                    <button
                       onClick={() => { setUserDropdownOpen(false); setTab('favorites'); }}
                       className="w-full text-left px-3 py-2 text-xs hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer block"
                     >
@@ -505,9 +513,18 @@ function DashboardOrchestrator() {
             </button>
           </div>
         ) : (
-          <main className="flex-grow">
-            
-            {/* View - LandingPage */}
+          <main className="flex-grow overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={tab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="w-full h-full"
+              >
+                
+                {/* View - LandingPage */}
             {tab === 'home' && (
               <LandingPage
                 locations={locations}
@@ -616,6 +633,11 @@ function DashboardOrchestrator() {
               <ContactTab />
             )}
 
+            {/* View - ProfileTab */}
+            {tab === 'profile' && (
+              <ProfileTab />
+            )}
+
             {/* View - Favorites Tab */}
             {tab === 'favorites' && (
               <div className="bg-black min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-left" id="favorites-tab-root">
@@ -678,6 +700,8 @@ function DashboardOrchestrator() {
                 </div>
               </div>
             )}
+              </motion.div>
+            </AnimatePresence>
           </main>
         )}
       </div>

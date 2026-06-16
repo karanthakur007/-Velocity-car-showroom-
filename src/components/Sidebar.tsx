@@ -40,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'locations', label: 'Showrooms', icon: Globe2 },
     { id: 'about', label: 'Pedigree', icon: Compass },
     { id: 'contact', label: 'Contact', icon: Mail },
+    { id: 'profile', label: 'Driver Profile', icon: UserIcon, requiresAuth: true },
   ];
 
   const handleTabChange = (tabId: string, requiresAuth?: boolean) => {
