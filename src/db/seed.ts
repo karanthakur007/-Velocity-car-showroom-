@@ -1,5 +1,6 @@
 import { db } from './index.ts';
 import { cars, pickupLocations, destinations } from './schema.ts';
+import { eq } from 'drizzle-orm';
 
 export async function seedIfNeeded() {
   try {
@@ -55,7 +56,27 @@ export async function seedIfNeeded() {
     // Check if cars already exist
     const existingCars = await db.select().from(cars).limit(1);
     if (existingCars.length > 0) {
-      console.log('Cars list already seeded.');
+      console.log('Cars list already seeded - checking photos updates...');
+      // Safely ensure McLaren and Bugatti images are fully active and not broken in existing database
+      await db.update(cars)
+        .set({
+          photos: [
+            "https://images.unsplash.com/photo-1621135802920-133df287f89c?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1562591176-969c3a37b385?q=80&w=1200&auto=format&fit=crop"
+          ]
+        })
+        .where(eq(cars.brand, "McLaren"));
+
+      await db.update(cars)
+        .set({
+          photos: [
+            "https://images.unsplash.com/photo-1542282088-fe8426682b8f?q=80&w=1200&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1200&auto=format&fit=crop"
+          ]
+        })
+        .where(eq(cars.brand, "Bugatti"));
+
+      console.log('McLaren and Bugatti premium certified photos sync completed.');
       return;
     }
 
@@ -105,8 +126,8 @@ export async function seedIfNeeded() {
         year: 2023,
         dailyRate: 1550,
         photos: [
-          "https://images.unsplash.com/photo-1562591176-969c3a37b385?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?q=80&w=1200&auto=format&fit=crop"
+          "https://images.unsplash.com/photo-1621135802920-133df287f89c?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1562591176-969c3a37b385?q=80&w=1200&auto=format&fit=crop"
         ],
         engine: "4.0L Twin-Turbo V8",
         horsepower: 755,
@@ -141,7 +162,7 @@ export async function seedIfNeeded() {
         year: 2021,
         dailyRate: 4500,
         photos: [
-          "https://images.unsplash.com/photo-1600706432502-75a0e2b74853?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1542282088-fe8426682b8f?q=80&w=1200&auto=format&fit=crop",
           "https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1200&auto=format&fit=crop"
         ],
         engine: "8.0L Quad-Turbo W16",
