@@ -1,0 +1,6 @@
+{
+  "name": "Velocity",
+  "description": "Velocity - Cinematic, Luxury Supercar Rentals with Cloud SQL and Firebase Auth",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
