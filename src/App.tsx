@@ -14,6 +14,7 @@ import { LocationsTab } from './components/LocationsTab.tsx';
 import { MembershipTab } from './components/MembershipTab.tsx';
 import { ConciergeTab } from './components/ConciergeTab.tsx';
 import { AboutTab } from './components/AboutTab.tsx';
+import { ContactTab } from './components/ContactTab.tsx';
 
 import { Car, PickupLocation, Destination, Reservation } from './types.ts';
 import { 
@@ -448,6 +449,7 @@ function DashboardOrchestrator() {
                 <button onClick={() => changeTabWithAuthCheck('concierge')} className="text-left text-white hover:text-gold-550 py-1">Concierge</button>
                 <button onClick={() => changeTabWithAuthCheck('locations')} className="text-left text-white hover:text-gold-550 py-1">World Showrooms</button>
                 <button onClick={() => changeTabWithAuthCheck('about')} className="text-left text-white hover:text-gold-550 py-1">Brand Pedigree</button>
+                <button onClick={() => changeTabWithAuthCheck('contact')} className="text-left text-white hover:text-gold-550 py-1">Contact</button>
                 {user && (
                   <button onClick={() => changeTabWithAuthCheck('favorites')} className="text-left text-red-500 py-1">My Speedway (Favorites)</button>
                 )}
@@ -607,6 +609,11 @@ function DashboardOrchestrator() {
             {/* View - AboutTab */}
             {tab === 'about' && (
               <AboutTab />
+            )}
+
+            {/* View - ContactTab */}
+            {tab === 'contact' && (
+              <ContactTab />
             )}
 
             {/* View - Favorites Tab */}

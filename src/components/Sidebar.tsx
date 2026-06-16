@@ -12,7 +12,8 @@ import {
   LogIn, 
   LogOut, 
   User as UserIcon,
-  ShieldAlert
+  ShieldAlert,
+  Mail
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -38,6 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'concierge', label: 'Concierge', icon: Headphones },
     { id: 'locations', label: 'Showrooms', icon: Globe2 },
     { id: 'about', label: 'Pedigree', icon: Compass },
+    { id: 'contact', label: 'Contact', icon: Mail },
   ];
 
   const handleTabChange = (tabId: string, requiresAuth?: boolean) => {
